@@ -14,46 +14,42 @@ public class ResumeParserUtil {
         String[] lines = text.split("\\r?\\n");
 
         // NAME
-        String name = lines.length > 0 ? lines[0].trim() : "Unknown";
+        String name = lines.length > 0
+                ? lines[0].trim()
+                : "Unknown";
 
-        // SKILLS
+        // DYNAMIC SKILLS EXTRACTION
         List<String> detectedSkills = new ArrayList<>();
 
-        String[] knownSkills = {
-                "Java",
-                "Spring Boot",
-                "Python",
-                "SQL",
-                "Docker",
-                "React",
-                "JavaScript",
-                "HTML",
-                "CSS",
-                "AWS",
-                "Firebase",
-                "Machine Learning",
-                "Power BI",
-                "Git",
-                "PostgreSQL"
-        };
+        String skillsSection = extractSection(
+                text,
+                "TECHNICAL SKILLS",
+                new String[] {
+                        "WORK EXPERIENCE",
+                        "PROJECTS",
+                        "EDUCATION"
+                });
 
-        for (String skill : knownSkills) {
+        String cleanedSkills = skillsSection
+                .replace("\n", ",")
+                .replace("Languages:", "")
+                .replace("Frameworks:", "")
+                .replace("Databases:", "")
+                .replace("Tools:", "")
+                .replace("Other:", "");
 
-            if (text.toLowerCase().contains(skill.toLowerCase())) {
-                detectedSkills.add(skill);
+        String[] splitSkills = cleanedSkills.split(",");
+
+        for (String skill : splitSkills) {
+
+            String trimmedSkill = skill.trim();
+
+            if (!trimmedSkill.isEmpty()
+                    && trimmedSkill.length() > 1) {
+
+                detectedSkills.add(trimmedSkill);
             }
         }
-
-        // EDUCATION
-        String education = extractSection(
-                text,
-                "education",
-                new String[] {
-                        "experience",
-                        "skills",
-                        "projects",
-                        "certifications"
-                });
 
         // EMAIL
         String email = "Not Found";
@@ -67,38 +63,52 @@ public class ResumeParserUtil {
             email = emailMatcher.group();
         }
 
-        // EXPERIENCE
-        String experience = extractSection(
-                text,
-                "experience",
-                new String[] {
-                        "education",
-                        "skills",
-                        "projects",
-                        "certifications"
-                });
-
         // PROFESSIONAL SUMMARY
         String professionalSummary = extractSection(
                 text,
-                "summary",
+                "PROFESSIONAL SUMMARY",
                 new String[] {
-                        "experience",
-                        "skills",
-                        "education",
-                        "projects",
-                        "certifications"
+                        "TECHNICAL SKILLS",
+                        "WORK EXPERIENCE",
+                        "PROJECTS",
+                        "EDUCATION"
+                });
+
+        // EXPERIENCE
+        String experience = extractSection(
+                text,
+                "WORK EXPERIENCE",
+                new String[] {
+                        "PROJECTS",
+                        "EDUCATION",
+                        "CERTIFICATIONS"
+                });
+
+        // PROJECTS
+        String projects = extractSection(
+                text,
+                "PROJECTS",
+                new String[] {
+                        "EDUCATION",
+                        "CERTIFICATIONS"
+                });
+
+        // EDUCATION
+        String education = extractSection(
+                text,
+                "EDUCATION",
+                new String[] {
+                        "CERTIFICATIONS",
+                        "PROJECTS"
                 });
 
         // CERTIFICATIONS
         String certifications = extractSection(
                 text,
-                "certifications",
+                "CERTIFICATIONS",
                 new String[] {
-                        "projects",
-                        "skills",
-                        "education",
-                        "experience"
+                        "EDUCATION",
+                        "PROJECTS"
                 });
 
         return new ResumeData(
@@ -108,29 +118,32 @@ public class ResumeParserUtil {
                 email,
                 experience,
                 professionalSummary,
-                certifications);
+                certifications,
+                projects);
     }
 
     private static String extractSection(
             String text,
-            String startKeyword,
-            String[] endKeywords) {
+            String startHeader,
+            String[] endHeaders) {
 
-        String lowerText = text.toLowerCase();
+        String upperText = text.toUpperCase();
 
-        int start = lowerText.indexOf(startKeyword.toLowerCase());
+        int start = upperText.indexOf(startHeader.toUpperCase());
 
         if (start == -1) {
             return "Not Found";
         }
 
+        start += startHeader.length();
+
         int end = text.length();
 
-        for (String endKeyword : endKeywords) {
+        for (String endHeader : endHeaders) {
 
-            int tempEnd = lowerText.indexOf(
-                    endKeyword.toLowerCase(),
-                    start + startKeyword.length());
+            int tempEnd = upperText.indexOf(
+                    endHeader.toUpperCase(),
+                    start);
 
             if (tempEnd != -1 && tempEnd < end) {
                 end = tempEnd;

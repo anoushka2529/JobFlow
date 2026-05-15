@@ -11,9 +11,10 @@ public class ResumeData {
     private String experience;
     private String professionalSummary;
     private String certifications;
+    private String projects;
 
     public ResumeData(String name, List<String> skills, String education, String email,
-            String experience, String professionalSummary, String certifications) {
+            String experience, String professionalSummary, String certifications, String projects) {
         this.name = name;
         this.skills = skills;
         this.education = education;
@@ -21,6 +22,7 @@ public class ResumeData {
         this.experience = experience;
         this.professionalSummary = professionalSummary;
         this.certifications = certifications;
+        this.projects = projects;
     }
 
     public String getName() {
@@ -50,4 +52,9 @@ public class ResumeData {
     public String getCertifications() {
         return certifications;
     }
+
+    public String getProjects() {
+        return projects;
+    }
+
 }

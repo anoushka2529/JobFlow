@@ -49,6 +49,7 @@ public class ResumeService {
         System.out.println("Professional Summary: " + resumeData.getProfessionalSummary());
         System.out.println("Certifications: ");
         System.out.println(resumeData.getCertifications());
+        System.out.println("Projects: " + resumeData.getProjects());
 
         return file.getOriginalFilename();
     }

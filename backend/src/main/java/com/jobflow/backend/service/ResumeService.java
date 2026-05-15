@@ -1,5 +1,6 @@
 package com.jobflow.backend.service;
 
+import com.jobflow.backend.util.PdfParserUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +29,11 @@ public class ResumeService {
         Files.createDirectories(path.getParent());
 
         Files.write(path, file.getBytes());
+
+        String extractedText = PdfParserUtil.extractText(path.toString());
+
+        System.out.println("EXTRACTED RESUME TEXT:");
+        System.out.println(extractedText);
 
         return file.getOriginalFilename();
     }

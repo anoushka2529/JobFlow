@@ -1,6 +1,9 @@
 package com.jobflow.backend.service;
 
+import com.jobflow.backend.dto.ResumeData;
+import com.jobflow.backend.util.ResumeParserUtil;
 import com.jobflow.backend.util.PdfParserUtil;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +37,18 @@ public class ResumeService {
 
         System.out.println("EXTRACTED RESUME TEXT:");
         System.out.println(extractedText);
+
+        ResumeData resumeData = ResumeParserUtil.parseResume(extractedText);
+
+        System.out.println("PARSED RESUME DATA:");
+        System.out.println("Name: " + resumeData.getName());
+        System.out.println("Skills: " + resumeData.getSkills());
+        System.out.println("Education: " + resumeData.getEducation());
+        System.out.println("Email: " + resumeData.getEmail());
+        System.out.println("Experience: " + resumeData.getExperience());
+        System.out.println("Professional Summary: " + resumeData.getProfessionalSummary());
+        System.out.println("Certifications: ");
+        System.out.println(resumeData.getCertifications());
 
         return file.getOriginalFilename();
     }

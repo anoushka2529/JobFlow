@@ -1,7 +1,8 @@
 package com.jobflow.backend.controller;
 
-import com.jobflow.backend.dto.UploadResponse;
+import com.jobflow.backend.dto.AIProcessResponse;
 import com.jobflow.backend.service.ResumeService;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,12 +17,7 @@ public class ResumeController {
     }
 
     @PostMapping("/upload")
-    public UploadResponse uploadResume(@RequestParam("file") MultipartFile file) throws Exception {
-
-        String fileName = resumeService.uploadResume(file);
-
-        return new UploadResponse(
-                "Resume uploaded successfully",
-                fileName);
+    public AIProcessResponse uploadResume(@RequestParam("file") MultipartFile file) throws Exception {
+        return resumeService.uploadResume(file);
     }
 }

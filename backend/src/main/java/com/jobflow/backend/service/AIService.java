@@ -1,5 +1,6 @@
 package com.jobflow.backend.service;
 
+import com.jobflow.backend.dto.AtsScore;
 import com.jobflow.backend.dto.ResumeData;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -24,29 +25,96 @@ public class AIService {
                                 .build();
         }
 
-        public String generateAIAnalysis(ResumeData resumeData) {
+        public String generateAIAnalysis(
+                        ResumeData resumeData,
+                        AtsScore atsScore,
+                        String jobDescription) {
 
                 String prompt = """
-                                You are a senior technical recruiter, ATS specialist,
+                                You are a senior technical recruiter, ATS optimization specialist,
                                 and software engineering interview coach.
 
+                                The ATS score below is already calculated by the backend.
+                                Do not invent a new score. Explain the given score.
+
+                                ATS SCORING METHOD:
+                                Total score is out of 100.
+                                - Skills Match: 20 points
+                                - Resume Structure: 20 points
+                                - Experience Quality: 20 points
+                                - Projects Quality: 20 points
+                                - Keyword Optimization: 20 points
+
+                                CALCULATED ATS SCORE:
+                                Overall Score: %d/100
+                                Skills Score: %d/20
+                                Structure Score: %d/20
+                                Experience Score: %d/20
+                                Projects Score: %d/20
+                                Keyword Score: %d/20
+
+                                TARGET JOB DESCRIPTION:
+                                %s
+
                                 TASK:
-                                Analyze this candidate profile and provide:
+                                Analyze the candidate profile against the target job description.
 
-                                1. Resume strengths
-                                2. Resume improvement suggestions
-                                3. ATS optimization suggestions
-                                4. Better wording suggestions
-                                5. 6-8 personalized interview questions
+                                Return the response in this structured format:
 
-                                RULES:
-                                - Do not invent fake experience
-                                - Be specific
-                                - Keep output structured
-                                - Focus on software/backend/full-stack roles
-                                - Use concise but professional language
+                                ======================
+                                ATS SCORE EXPLANATION
+                                ======================
+                                - Explain why this score makes sense.
+                                - Mention where the resume matches the JD.
+                                - Mention where points were lost.
 
-                                Candidate:
+                                ======================
+                                RESUME STRENGTHS
+                                ======================
+                                - Mention the strongest parts of the resume.
+
+                                ======================
+                                AREAS FOR IMPROVEMENT
+                                ======================
+                                - Mention weak or incomplete sections.
+
+                                ======================
+                                ATS OPTIMIZATION
+                                ======================
+                                - Suggest missing JD keywords.
+                                - Suggest formatting or section improvements.
+                                - Suggest role-specific improvements.
+
+                                ======================
+                                BETTER BULLET POINT SUGGESTIONS
+                                ======================
+                                - Rewrite weak experience/project points using stronger wording.
+                                - Add measurable impact where appropriate.
+                                - Do not invent fake achievements.
+
+                                ======================
+                                SKILLS GAP ANALYSIS
+                                ======================
+                                - Compare resume skills with job description requirements.
+                                - Mention missing or weakly represented skills.
+
+                                ======================
+                                PERSONALIZED INTERVIEW QUESTIONS
+                                ======================
+                                Generate 6-8 strong personalized interview questions:
+                                - technical questions
+                                - project-based questions
+                                - behavioral questions
+                                - backend/system design questions if relevant
+                                - questions should be aligned with the target JD
+
+                                IMPORTANT RULES:
+                                - Do not invent fake experience.
+                                - Be specific and practical.
+                                - Keep feedback concise but useful.
+                                - Focus on software engineering/product-company roles.
+
+                                CANDIDATE PROFILE:
 
                                 Name: %s
                                 Skills: %s
@@ -56,6 +124,15 @@ public class AIService {
                                 Education: %s
                                 Certifications: %s
                                 """.formatted(
+                                atsScore.getTotalScore(),
+                                atsScore.getSkillsScore(),
+                                atsScore.getStructureScore(),
+                                atsScore.getExperienceScore(),
+                                atsScore.getProjectsScore(),
+                                atsScore.getKeywordScore(),
+                                jobDescription == null || jobDescription.isBlank()
+                                                ? "No job description provided."
+                                                : jobDescription,
                                 resumeData.getName(),
                                 resumeData.getSkills(),
                                 resumeData.getProfessionalSummary(),
@@ -82,8 +159,7 @@ public class AIService {
 
                         Map<String, Object> response = webClient.post()
                                         .uri("/openai/v1/chat/completions")
-                                        .header(HttpHeaders.AUTHORIZATION,
-                                                        "Bearer " + apiKey)
+                                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .bodyValue(requestBody)
                                         .retrieve()

@@ -17,7 +17,9 @@ public class ResumeController {
     }
 
     @PostMapping("/upload")
-    public AIProcessResponse uploadResume(@RequestParam("file") MultipartFile file) throws Exception {
-        return resumeService.uploadResume(file);
+    public AIProcessResponse uploadResume(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "jobDescription", required = false) String jobDescription) throws Exception {
+        return resumeService.uploadResume(file, jobDescription);
     }
 }

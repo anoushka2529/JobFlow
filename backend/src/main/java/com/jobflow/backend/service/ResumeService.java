@@ -1,6 +1,7 @@
 package com.jobflow.backend.service;
 
 import com.jobflow.backend.dto.AIProcessResponse;
+import com.jobflow.backend.dto.AtsScore;
 import com.jobflow.backend.dto.ResumeData;
 import com.jobflow.backend.util.PdfParserUtil;
 import com.jobflow.backend.util.ResumeParserUtil;
@@ -19,12 +20,16 @@ public class ResumeService {
     private final String UPLOAD_DIR = "uploads/";
 
     private final AIService aiService;
+    private final AtsScoringService atsScoringService;
 
-    public ResumeService(AIService aiService) {
+    public ResumeService(
+            AIService aiService,
+            AtsScoringService atsScoringService) {
         this.aiService = aiService;
+        this.atsScoringService = atsScoringService;
     }
 
-    public AIProcessResponse uploadResume(MultipartFile file) throws IOException {
+    public AIProcessResponse uploadResume(MultipartFile file, String jobDescription) throws IOException {
 
         if (file.isEmpty()) {
             throw new RuntimeException("File is empty");
@@ -43,23 +48,14 @@ public class ResumeService {
         String extractedText = PdfParserUtil.extractText(path.toString());
 
         ResumeData resumeData = ResumeParserUtil.parseResume(extractedText);
-        System.out.println(" RAW RESUME TEXT :");
-        System.out.println(extractedText);
 
-        System.out.println(" PARSED RESUME DATA :");
-        System.out.println("Name: " + resumeData.getName());
-        System.out.println("Email: " + resumeData.getEmail());
-        System.out.println("Skills: " + resumeData.getSkills());
-        System.out.println("Education: " + resumeData.getEducation());
-        System.out.println("Experience: " + resumeData.getExperience());
-        System.out.println("Professional Summary: " + resumeData.getProfessionalSummary());
-        System.out.println("Projects: " + resumeData.getProjects());
-        System.out.println("Certifications: " + resumeData.getCertifications());
+        AtsScore atsScore = atsScoringService.calculateScore(resumeData);
 
-        String aiAnalysis = aiService.generateAIAnalysis(resumeData);
+        String aiAnalysis = aiService.generateAIAnalysis(resumeData, atsScore, jobDescription);
 
         return new AIProcessResponse(
                 resumeData,
+                atsScore,
                 aiAnalysis);
     }
 }

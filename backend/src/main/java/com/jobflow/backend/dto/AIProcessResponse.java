@@ -3,10 +3,15 @@ package com.jobflow.backend.dto;
 public class AIProcessResponse {
 
     private ResumeData resumeData;
+    private AtsScore atsScore;
     private String aiAnalysis;
 
-    public AIProcessResponse(ResumeData resumeData, String aiAnalysis) {
+    public AIProcessResponse(
+            ResumeData resumeData,
+            AtsScore atsScore,
+            String aiAnalysis) {
         this.resumeData = resumeData;
+        this.atsScore = atsScore;
         this.aiAnalysis = aiAnalysis;
     }
 
@@ -14,7 +19,11 @@ public class AIProcessResponse {
         return resumeData;
     }
 
-    public String getaiAnalysis() {
+    public AtsScore getAtsScore() {
+        return atsScore;
+    }
+
+    public String getAiAnalysis() {
         return aiAnalysis;
     }
 }

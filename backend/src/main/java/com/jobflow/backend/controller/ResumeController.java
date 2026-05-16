@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/resume")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ResumeController {
 
     private final ResumeService resumeService;

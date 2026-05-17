@@ -10,7 +10,7 @@ public class ResumeAnalysis {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    Long userId;
     private String fileName;
     private String candidateName;
     private String candidateEmail;
@@ -29,12 +29,14 @@ public class ResumeAnalysis {
     }
 
     public ResumeAnalysis(
+            Long userId,
             String fileName,
             String candidateName,
             String candidateEmail,
             String jobDescription,
             int totalScore,
             String aiAnalysis) {
+        this.userId = userId;
         this.fileName = fileName;
         this.candidateName = candidateName;
         this.candidateEmail = candidateEmail;
@@ -74,5 +76,9 @@ public class ResumeAnalysis {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public Long getUserId() {
+        return userId;
     }
 }

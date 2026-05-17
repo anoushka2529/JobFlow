@@ -23,8 +23,14 @@ public class ResumeController {
     @PostMapping("/upload")
     public AIProcessResponse uploadResume(
             @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "jobDescription", required = false) String jobDescription) throws Exception {
-        return resumeService.uploadResume(file, jobDescription);
+            @RequestParam(value = "jobDescription", required = false) String jobDescription,
+            @RequestParam("userId") Long userId) throws Exception {
+        return resumeService.uploadResume(file, jobDescription, userId);
+    }
+
+    @GetMapping("/history/{userId}")
+    public List<ResumeAnalysis> getAnalysisHistoryByUser(@PathVariable Long userId) {
+        return resumeService.getAnalysisHistoryByUser(userId);
     }
 
     @GetMapping("/history")

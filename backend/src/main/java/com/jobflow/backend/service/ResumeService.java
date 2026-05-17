@@ -34,11 +34,16 @@ public class ResumeService {
         this.atsScoringService = atsScoringService;
         this.resumeAnalysisRepository = resumeAnalysisRepository;
     }
-    public List<ResumeAnalysis> getAnalysisHistory() {
-    return resumeAnalysisRepository.findAll();
-}
 
-    public AIProcessResponse uploadResume(MultipartFile file, String jobDescription) throws IOException {
+    public List<ResumeAnalysis> getAnalysisHistory() {
+        return resumeAnalysisRepository.findAll();
+    }
+
+    public List<ResumeAnalysis> getAnalysisHistoryByUser(Long userId) {
+        return resumeAnalysisRepository.findByUserId(userId);
+    }
+
+    public AIProcessResponse uploadResume(MultipartFile file, String jobDescription, Long userId) throws IOException {
 
         if (file.isEmpty()) {
             throw new RuntimeException("File is empty");
@@ -63,6 +68,7 @@ public class ResumeService {
         String aiAnalysis = aiService.generateAIAnalysis(resumeData, atsScore, jobDescription);
 
         ResumeAnalysis savedAnalysis = new ResumeAnalysis(
+                userId,
                 file.getOriginalFilename(),
                 resumeData.getName(),
                 resumeData.getEmail(),

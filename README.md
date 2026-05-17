@@ -54,7 +54,13 @@ Save Analysis to PostgreSQL
 Dashboard Insights
 
 ## Screenshots
-(Add screenshots here)
+<img width="485" height="433" alt="image" src="https://github.com/user-attachments/assets/58042875-6dc4-4aa3-94e6-5491014c0f26" />
+<img width="990" height="810" alt="image" src="https://github.com/user-attachments/assets/e9400a61-8301-46ad-b9c9-c01e49c7f568" />
+<img width="1002" height="722" alt="image" src="https://github.com/user-attachments/assets/14fdfa50-e903-4b07-a628-a9404009efab" />
+<img width="742" height="792" alt="image" src="https://github.com/user-attachments/assets/77cb90a8-60c1-4fb3-9717-0fc6da2cccf8" />
+<img width="743" height="650" alt="image" src="https://github.com/user-attachments/assets/28f9a5e7-a21c-460c-a49e-aa9813766a6f" />
+<img width="743" height="822" alt="image" src="https://github.com/user-attachments/assets/c275fc41-1c7b-49fe-b596-3ff5ddbee090" />
+<img width="743" height="858" alt="image" src="https://github.com/user-attachments/assets/253199d0-f601-48b3-b901-272af20e34d1" />
 
 ## Setup Instructions
 

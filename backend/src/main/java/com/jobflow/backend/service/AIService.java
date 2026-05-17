@@ -31,115 +31,122 @@ public class AIService {
                         String jobDescription) {
 
                 String prompt = """
-                                You are a senior technical recruiter, ATS optimization specialist,
-                                and software engineering interview coach.
+                                 You are a senior technical recruiter, ATS optimization specialist,
+                                 and software engineering interview coach.
 
-                                The ATS score below is already calculated by the backend.
-                                Do not invent a new score. Explain the given score.
+                                 The ATS score below is already calculated by the backend.
+                                 Do not invent a new score. Explain the given score.
 
-                                ATS SCORING METHOD:
-                                Total score is out of 100.
-                                - Skills Match: 20 points
-                                - Resume Structure: 20 points
-                                - Experience Quality: 20 points
-                                - Projects Quality: 20 points
-                                - Keyword Optimization: 20 points
+                                 ATS SCORING METHOD:
+                                 Total score is out of 100.
+                                 - Skills Match: 20 points
+                                 - Resume Structure: 20 points
+                                 - Experience Quality: 20 points
+                                 - Projects Quality: 20 points
+                                 - Keyword Optimization: 20 points
 
-                                CALCULATED ATS SCORE:
-                                Overall Score: %d/100
-                                Skills Score: %d/20
-                                Structure Score: %d/20
-                                Experience Score: %d/20
-                                Projects Score: %d/20
-                                Keyword Score: %d/20
+                                 CALCULATED ATS SCORE:
+                                 Overall Score: %d/100
+                                 Skills Score: %d/20
+                                 Structure Score: %d/20
+                                 Experience Score: %d/20
+                                 Projects Score: %d/20
+                                 Keyword Score: %d/20
 
-                                TARGET JOB DESCRIPTION:
-                                %s
+                                 TARGET JOB DESCRIPTION:
+                                 %s
 
-                                TASK:
-                                Analyze the candidate profile against the target job description.
+                                 TASK:
+                                 Analyze the candidate profile against the target job description.
 
-                                Return the response in this structured format:
+                                 Return the response in this structured format:
 
-                                ======================
-                                ATS SCORE EXPLANATION
-                                ======================
-                                - Explain why this score makes sense.
-                                - Mention where the resume matches the JD.
-                                - Mention where points were lost.
+                                 ======================
+                                 ATS SCORE EXPLANATION
+                                 ======================
+                                 Return ONLY bullet points in this section.
+                                 Do not write a paragraph.
 
-                                ======================
-                                RESUME STRENGTHS
-                                ======================
-                                - Mention the strongest parts of the resume.
+                                 Use exactly this format:
 
-                                ======================
-                                AREAS FOR IMPROVEMENT
-                                ======================
-                                - Mention weak or incomplete sections.
+                                - Overall Assessment: explain the overall score in one sentence.
+                                - Strengths: mention strongest scoring areas in one sentence.
+                                - Lost Points: mention weakest scoring areas in one sentence.
+                                - JD Match: explain resume-job description alignment in one sentence.
 
-                                ======================
-                                ATS OPTIMIZATION
-                                ======================
-                                - Suggest missing JD keywords.
-                                - Suggest formatting or section improvements.
-                                - Suggest role-specific improvements.
+                                 ======================
+                                 RESUME STRENGTHS
+                                 ======================
+                                 - Mention the strongest parts of the resume.
 
-                                ======================
-                                BETTER BULLET POINT SUGGESTIONS
-                                ======================
-                                - Rewrite weak experience/project points using stronger wording.
-                                - Add measurable impact where appropriate.
-                                - Do not invent fake achievements.
+                                 ======================
+                                 AREAS FOR IMPROVEMENT
+                                 ======================
+                                 - Mention weak or incomplete sections.
 
-                                ======================
-                                SKILLS GAP ANALYSIS
-                                ======================
-                                - Compare resume skills with job description requirements.
-                                - Mention missing or weakly represented skills.
+                                 ======================
+                                 ATS OPTIMIZATION
+                                 ======================
+                                 - Suggest missing JD keywords.
+                                 - Suggest formatting or section improvements.
+                                 - Suggest role-specific improvements.
 
-                                ======================
-                                PERSONALIZED INTERVIEW QUESTIONS
-                                ======================
-                                Generate 6-8 strong personalized interview questions:
-                                - technical questions
-                                - project-based questions
-                                - behavioral questions
-                                - backend/system design questions if relevant
-                                - questions should be aligned with the target JD
+                                 ======================
+                                 BETTER BULLET POINT SUGGESTIONS
+                                 ======================
+                                 - Rewrite weak experience/project points using stronger wording.
+                                 - Add measurable impact where appropriate.
+                                 - Do not invent fake achievements.
 
-                                IMPORTANT RULES:
-                                - Do not invent fake experience.
-                                - Be specific and practical.
-                                - Keep feedback concise but useful.
-                                - Focus on software engineering/product-company roles.
+                                 ======================
+                                 SKILLS GAP ANALYSIS
+                                 ======================
+                                 - Compare resume skills with job description requirements.
+                                 - Mention missing or weakly represented skills.
 
-                                CANDIDATE PROFILE:
+                                 ======================
+                                 PERSONALIZED INTERVIEW QUESTIONS
+                                 ======================
+                                 Generate 6-8 strong personalized interview questions:
+                                 - technical questions
+                                 - project-based questions
+                                 - behavioral questions
+                                 - backend/system design questions if relevant
+                                 - questions should be aligned with the target JD
 
-                                Name: %s
-                                Skills: %s
-                                Summary: %s
-                                Experience: %s
-                                Projects: %s
-                                Education: %s
-                                Certifications: %s
-                                """.formatted(
-                                atsScore.getTotalScore(),
-                                atsScore.getSkillsScore(),
-                                atsScore.getStructureScore(),
-                                atsScore.getExperienceScore(),
-                                atsScore.getProjectsScore(),
-                                atsScore.getKeywordScore(),
-                                jobDescription == null || jobDescription.isBlank()
-                                                ? "No job description provided."
-                                                : jobDescription,
-                                resumeData.getName(),
-                                resumeData.getSkills(),
-                                resumeData.getProfessionalSummary(),
-                                resumeData.getExperience(),
-                                resumeData.getProjects(),
-                                resumeData.getEducation(),
-                                resumeData.getCertifications());
+                                 IMPORTANT RULES:
+                                 - Do not invent fake experience.
+                                 - Be specific and practical.
+                                 - Keep feedback concise but useful.
+                                 - Focus on software engineering/product-company roles.
+
+                                 CANDIDATE PROFILE:
+
+                                 Name: %s
+                                 Skills: %s
+                                 Summary: %s
+                                 Experience: %s
+                                 Projects: %s
+                                 Education: %s
+                                 Certifications: %s
+                                 """
+                                .formatted(
+                                                atsScore.getTotalScore(),
+                                                atsScore.getSkillsScore(),
+                                                atsScore.getStructureScore(),
+                                                atsScore.getExperienceScore(),
+                                                atsScore.getProjectsScore(),
+                                                atsScore.getKeywordScore(),
+                                                jobDescription == null || jobDescription.isBlank()
+                                                                ? "No job description provided."
+                                                                : jobDescription,
+                                                resumeData.getName(),
+                                                resumeData.getSkills(),
+                                                resumeData.getProfessionalSummary(),
+                                                resumeData.getExperience(),
+                                                resumeData.getProjects(),
+                                                resumeData.getEducation(),
+                                                resumeData.getCertifications());
 
                 return callGroq(prompt);
         }

@@ -1,11 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../App.css";
 
-function HomePage({user,onLogout}) {
+function HomePage({ user, onLogout }) {
   const [resumeFile, setResumeFile] = useState(null);
   const [jobDescription, setJobDescription] = useState("");
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [dashboard, setDashboard] = useState(null);
+
+  const fetchDashboard = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/dashboard/${user.userId}`
+      );
+
+      const data = await response.json();
+      setDashboard(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
 
   const handleAnalyze = async () => {
     if (!resumeFile || !jobDescription.trim()) {
@@ -32,6 +50,7 @@ function HomePage({user,onLogout}) {
 
       const data = await response.json();
       setAnalysis(data);
+      fetchDashboard();
     } catch (error) {
       console.error(error);
       alert("Something went wrong while analyzing the resume.");
@@ -50,72 +69,70 @@ function HomePage({user,onLogout}) {
   };
 
   const normalizeTitle = (title) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, "");
+    return title.toLowerCase().replace(/[^a-z0-9]/g, "");
   };
 
   const parseAISections = (text) => {
-  if (!text) return [];
+    if (!text) return [];
 
-  const moduleTitles = [
-    "ATS SCORE EXPLANATION",
-    "RESUME STRENGTHS",
-    "AREAS FOR IMPROVEMENT",
-    "ATS OPTIMIZATION",
-    "BETTER BULLET POINT SUGGESTIONS",
-    "SKILLS GAP ANALYSIS",
-    "PERSONALIZED INTERVIEW QUESTIONS",
-  ];
+    const moduleTitles = [
+      "ATS SCORE EXPLANATION",
+      "RESUME STRENGTHS",
+      "AREAS FOR IMPROVEMENT",
+      "ATS OPTIMIZATION",
+      "BETTER BULLET POINT SUGGESTIONS",
+      "SKILLS GAP ANALYSIS",
+      "PERSONALIZED INTERVIEW QUESTIONS",
+    ];
 
-  const lines = text
-    .split("\n")
-    .map((line) => cleanText(line))
-    .filter(Boolean);
+    const lines = text
+      .split("\n")
+      .map((line) => cleanText(line))
+      .filter(Boolean);
 
-  const sections = [];
-  let currentSection = null;
+    const sections = [];
+    let currentSection = null;
 
-  lines.forEach((line) => {
-    const normalizedLine = normalizeTitle(line);
+    lines.forEach((line) => {
+      const normalizedLine = normalizeTitle(line);
 
-    const matchedTitle = moduleTitles.find(
-      (title) => normalizeTitle(title) === normalizedLine
-    );
+      const matchedTitle = moduleTitles.find(
+        (title) => normalizeTitle(title) === normalizedLine
+      );
 
-    if (matchedTitle) {
-      if (currentSection) {
-        sections.push(currentSection);
+      if (matchedTitle) {
+        if (currentSection) {
+          sections.push(currentSection);
+        }
+
+        currentSection = {
+          title: matchedTitle,
+          content: [],
+        };
+      } else if (currentSection) {
+        currentSection.content.push(line);
       }
+    });
 
-      currentSection = {
-        title: matchedTitle,
-        content: [],
-      };
-    } else if (currentSection) {
-      currentSection.content.push(line);
+    if (currentSection) {
+      sections.push(currentSection);
     }
-  });
 
-  if (currentSection) {
-    sections.push(currentSection);
-  }
-
-  return sections;
-};
+    return sections;
+  };
 
   const getSectionByTitle = (sections, title) => {
-  const requiredTitle = normalizeTitle(title);
+    const requiredTitle = normalizeTitle(title);
 
-  return (
-    sections.find(
-      (section) => normalizeTitle(section.title) === requiredTitle
-    ) || {
-      title,
-      content: ["No content generated for this section."],
-    }
-  );
-};
+    return (
+      sections.find(
+        (section) => normalizeTitle(section.title) === requiredTitle
+      ) || {
+        title,
+        content: ["No content generated for this section."],
+      }
+    );
+  };
 
   const isInterviewSubheading = (line) => {
     const lower = line.toLowerCase();
@@ -145,7 +162,6 @@ function HomePage({user,onLogout}) {
 
   const renderInterviewModule = (section) => {
     const groups = [];
-
     let currentGroup = {
       heading: "",
       questions: [],
@@ -214,24 +230,62 @@ function HomePage({user,onLogout}) {
     <div className="app">
       <div className="main-container">
         <h1>JobFlow AI</h1>
-    <div className="user-header">
 
-<p>
-Welcome, {user.name}
-</p>
+        <div className="user-header">
+          <p>Welcome, {user.name}</p>
 
-<button
-className="logout-btn"
-onClick={onLogout}
->
-Logout
-</button>
-
-</div>
+          <button className="logout-btn" onClick={onLogout}>
+            Logout
+          </button>
+        </div>
 
         <p className="subtitle">
           AI-powered resume analysis, ATS scoring, and interview preparation.
         </p>
+
+        {dashboard && (
+          <>
+            <div className="dashboard-grid">
+              <div className="dashboard-card">
+                <h3>Total Resumes</h3>
+                <p>{dashboard.totalResumes}</p>
+              </div>
+
+              <div className="dashboard-card">
+                <h3>Average Score</h3>
+                <p>{dashboard.averageScore}%</p>
+              </div>
+
+              <div className="dashboard-card">
+                <h3>Highest Score</h3>
+                <p>{dashboard.highestScore}%</p>
+              </div>
+
+              <div className="dashboard-card">
+                <h3>Trend</h3>
+                <p>{dashboard.scoreTrend}</p>
+              </div>
+            </div>
+
+            <div className="module-card">
+              <h2>Recent Resume History</h2>
+
+              <div className="history-list">
+                {dashboard.analyses?.map((item, index) => (
+                  <div className="history-item" key={index}>
+                    <div>
+                      <strong>{item.fileName}</strong>
+                    </div>
+
+                    <div>{item.totalScore}%</div>
+
+                    <div>{new Date(item.createdAt).toLocaleDateString()}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="input-card">
           <label>Upload Resume</label>

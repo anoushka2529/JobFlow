@@ -13,21 +13,30 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import com.jobflow.backend.entity.ResumeAnalysis;
+import com.jobflow.backend.repository.ResumeAnalysisRepository;
+import java.util.List;
 
 @Service
 public class ResumeService {
 
     private final String UPLOAD_DIR = "uploads/";
+    private final ResumeAnalysisRepository resumeAnalysisRepository;
 
     private final AIService aiService;
     private final AtsScoringService atsScoringService;
 
     public ResumeService(
             AIService aiService,
-            AtsScoringService atsScoringService) {
+            AtsScoringService atsScoringService,
+            ResumeAnalysisRepository resumeAnalysisRepository) {
         this.aiService = aiService;
         this.atsScoringService = atsScoringService;
+        this.resumeAnalysisRepository = resumeAnalysisRepository;
     }
+    public List<ResumeAnalysis> getAnalysisHistory() {
+    return resumeAnalysisRepository.findAll();
+}
 
     public AIProcessResponse uploadResume(MultipartFile file, String jobDescription) throws IOException {
 
@@ -53,6 +62,15 @@ public class ResumeService {
 
         String aiAnalysis = aiService.generateAIAnalysis(resumeData, atsScore, jobDescription);
 
+        ResumeAnalysis savedAnalysis = new ResumeAnalysis(
+                file.getOriginalFilename(),
+                resumeData.getName(),
+                resumeData.getEmail(),
+                jobDescription,
+                atsScore.getTotalScore(),
+                aiAnalysis);
+
+        resumeAnalysisRepository.save(savedAnalysis);
         return new AIProcessResponse(
                 resumeData,
                 atsScore,

@@ -1,10 +1,13 @@
 package com.jobflow.backend.controller;
 
 import com.jobflow.backend.dto.AIProcessResponse;
+import com.jobflow.backend.entity.ResumeAnalysis;
 import com.jobflow.backend.service.ResumeService;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/resume")
@@ -22,5 +25,10 @@ public class ResumeController {
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "jobDescription", required = false) String jobDescription) throws Exception {
         return resumeService.uploadResume(file, jobDescription);
+    }
+
+    @GetMapping("/history")
+    public List<ResumeAnalysis> getAnalysisHistory() {
+        return resumeService.getAnalysisHistory();
     }
 }

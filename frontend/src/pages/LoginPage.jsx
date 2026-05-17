@@ -28,7 +28,19 @@ function LoginPage({ onLoginSuccess }) {
         return;
       }
 
-      onLoginSuccess(data);
+      if (isLogin) {
+  onLoginSuccess(data);
+} else {
+  alert("Registration successful. Please login now.");
+
+  setIsLogin(true);
+
+  setFormData({
+    name: "",
+    email: formData.email,
+    password: ""
+  });
+}
     } catch (error) {
       console.error(error);
       alert("Something went wrong");

@@ -246,6 +246,10 @@ if (!jobDescription.trim()) {
       <div className="main-container">
         <h1>JobFlow AI</h1>
 
+<p className="tagline">
+  Transform resumes into actionable insights with AI-powered ATS analysis, personalized feedback, and interview preparation.
+</p>
+
         <div className="user-header">
           <p>Welcome, {user.name}</p>
 
@@ -254,9 +258,7 @@ if (!jobDescription.trim()) {
           </button>
         </div>
 
-        <p className="subtitle">
-          AI-powered resume analysis, ATS scoring, and interview preparation.
-        </p>
+       
 
         {dashboard && (
           <>
@@ -281,6 +283,52 @@ if (!jobDescription.trim()) {
                 <p>{dashboard.scoreTrend}</p>
               </div>
             </div>
+
+            <div className="module-card">
+
+<h2>AI Insights</h2>
+
+<div className="insights-grid">
+
+<div className="insight-box">
+
+<h4>Strongest Area</h4>
+
+<p>{dashboard.strongestArea}</p>
+
+</div>
+
+<div className="insight-box">
+
+<h4>Weakest Area</h4>
+
+<p>{dashboard.weakestArea}</p>
+
+</div>
+
+<div className="insight-box">
+
+<h4>Growth</h4>
+
+<p>{dashboard.scoreGrowth}</p>
+
+</div>
+
+</div>
+
+<div className="suggestion-box">
+
+<h4>Improvement Suggestion</h4>
+
+<p>
+
+{dashboard.improvementSuggestion}
+
+</p>
+
+</div>
+
+</div>
 
             <div className="module-card">
               <h2>Recent Resume History</h2>

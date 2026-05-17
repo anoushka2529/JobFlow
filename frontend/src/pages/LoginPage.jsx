@@ -59,7 +59,7 @@ if (!isLogin && !formData.name.trim()) {
 } else {
   alert("Registration successful. Please login now.");
 
-  alert("Registration successful. Please login now.");
+  
 
 setIsLogin(true);
 

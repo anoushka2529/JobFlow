@@ -28,6 +28,10 @@ public class DashboardService {
                     0,
                     0,
                     "No data yet",
+                    "-",
+                    "-",
+                    "Analyze more resumes to generate personalized insights.",
+                    "0%",
                     analyses);
         }
 
@@ -46,9 +50,12 @@ public class DashboardService {
                 .max()
                 .orElse(0);
 
-        int latestScore = analyses.get(analyses.size() - 1).getTotalScore();
+        int latestScore = analyses
+                .get(analyses.size() - 1)
+                .getTotalScore();
 
         String scoreTrend = calculateTrend(analyses);
+        String scoreGrowth = calculateGrowth(analyses);
 
         return new DashboardResponse(
                 totalResumes,
@@ -56,6 +63,10 @@ public class DashboardService {
                 highestScore,
                 latestScore,
                 scoreTrend,
+                getStrongestArea(),
+                getWeakestArea(),
+                getImprovementSuggestion(),
+                scoreGrowth,
                 analyses);
     }
 
@@ -65,9 +76,13 @@ public class DashboardService {
             return "Not enough data";
         }
 
-        int previousScore = analyses.get(analyses.size() - 2).getTotalScore();
+        int previousScore = analyses
+                .get(analyses.size() - 2)
+                .getTotalScore();
 
-        int latestScore = analyses.get(analyses.size() - 1).getTotalScore();
+        int latestScore = analyses
+                .get(analyses.size() - 1)
+                .getTotalScore();
 
         if (latestScore > previousScore) {
             return "Improving";
@@ -76,5 +91,46 @@ public class DashboardService {
         } else {
             return "Stable";
         }
+    }
+
+    private String calculateGrowth(List<ResumeAnalysis> analyses) {
+
+        if (analyses.size() < 2) {
+            return "0%";
+        }
+
+        int firstScore = analyses
+                .get(0)
+                .getTotalScore();
+
+        int latestScore = analyses
+                .get(analyses.size() - 1)
+                .getTotalScore();
+
+        if (firstScore == 0) {
+            return "0%";
+        }
+
+        double growth = ((double) (latestScore - firstScore) / firstScore) * 100;
+
+        long roundedGrowth = Math.round(growth);
+
+        if (roundedGrowth > 0) {
+            return "+" + roundedGrowth + "%";
+        }
+
+        return roundedGrowth + "%";
+    }
+
+    private String getStrongestArea() {
+        return "Projects Quality";
+    }
+
+    private String getWeakestArea() {
+        return "Keyword Optimization";
+    }
+
+    private String getImprovementSuggestion() {
+        return "Add stronger role-specific keywords, quantify project impact, and align resume content more closely with the target job description.";
     }
 }

@@ -11,31 +11,29 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(AuthException.class)
-    public ResponseEntity<Map<String, String>> handleAuthException(
-            AuthException ex) {
+        @ExceptionHandler(AuthException.class)
+        public ResponseEntity<Map<String, String>> handleAuthException(
+                        AuthException ex) {
 
-        Map<String, String> response = new HashMap<>();
+                Map<String, String> response = new HashMap<>();
 
-        response.put("message", ex.getMessage());
+                response.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(
-                response,
-                ex.getStatus());
-    }
+                return new ResponseEntity<>(
+                                response,
+                                ex.getStatus());
+        }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGenericException(
-            Exception ex) {
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<Map<String, String>> handleGenericException(
+                        Exception ex) {
 
-        Map<String, String> response = new HashMap<>();
+                Map<String, String> response = new HashMap<>();
 
-        response.put(
-                "message",
-                "Something went wrong");
+                response.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(
-                response,
-                HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+                return new ResponseEntity<>(
+                                response,
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 }

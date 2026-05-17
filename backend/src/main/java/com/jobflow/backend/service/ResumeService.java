@@ -53,6 +53,14 @@ public class ResumeService {
             throw new RuntimeException("Only PDF files are allowed");
         }
 
+        if (jobDescription == null || jobDescription.isBlank()) {
+            throw new RuntimeException("Job description is required");
+        }
+
+        if (userId == null) {
+            throw new RuntimeException("User ID is required");
+        }
+
         Path path = Paths.get(UPLOAD_DIR + file.getOriginalFilename());
 
         Files.createDirectories(path.getParent());

@@ -30,6 +30,21 @@ function HomePage({ user, onLogout }) {
       alert("Please upload a resume and enter a job description.");
       return;
     }
+    if (!resumeFile) {
+  alert("Please upload a resume PDF");
+  return;
+}
+
+if (!resumeFile.name.toLowerCase().endsWith(".pdf")) {
+  alert("Only PDF files are allowed");
+  return;
+}
+
+if (!jobDescription.trim()) {
+  alert("Please paste a job description");
+  return;
+}
+
 
     const formData = new FormData();
     formData.append("file", resumeFile);

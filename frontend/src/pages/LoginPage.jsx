@@ -10,6 +10,32 @@ function LoginPage({ onLoginSuccess }) {
   });
 
   const handleSubmit = async () => {
+    if (!formData.email.trim()) {
+  alert("Email is required");
+  return;
+}
+
+if (!formData.email.includes("@")) {
+  alert("Enter a valid email address");
+  return;
+}
+
+if (!formData.password.trim()) {
+  alert("Password is required");
+  return;
+}
+
+if (formData.password.length < 6) {
+  alert("Password must be at least 6 characters");
+  return;
+}
+
+if (!isLogin && !formData.name.trim()) {
+  alert("Name is required");
+  return;
+}
+
+
     const endpoint = isLogin ? "login" : "register";
 
     try {
@@ -33,13 +59,15 @@ function LoginPage({ onLoginSuccess }) {
 } else {
   alert("Registration successful. Please login now.");
 
-  setIsLogin(true);
+  alert("Registration successful. Please login now.");
 
-  setFormData({
-    name: "",
-    email: formData.email,
-    password: ""
-  });
+setIsLogin(true);
+
+setFormData({
+  name: "",
+  email: formData.email.trim(),
+  password: ""
+});
 }
     } catch (error) {
       console.error(error);

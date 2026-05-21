@@ -1,86 +1,274 @@
-# JobFlow AI
+# JobFlow – AI Powered Resume Intelligence Platform
 
-## Overview
-Short paragraph:
-JobFlow AI is an AI-powered resume analysis platform that evaluates resumes against job descriptions, generates ATS scores, provides personalized feedback, identifies improvement areas, and offers interview preparation insights.
+JobFlow is a full-stack AI-powered resume analysis platform that helps users optimize resumes for specific job descriptions, improve ATS compatibility, and prepare for interviews through personalized AI-driven insights.
+
+Built using **React + Spring Boot + PostgreSQL + Llama 3.3 (Groq API)**.
+
+---
 
 ## Features
-- User registration and login
-- Secure password storage using BCrypt
-- Resume upload (PDF)
-- ATS score generation
-- Resume strengths analysis
-- Areas for improvement
-- ATS optimization suggestions
-- Better bullet-point recommendations
-- Skills gap analysis
-- Personalized interview questions
-- User-specific dashboard
-- Resume history tracking
-- AI-powered insights and trends
 
-## Tech Stack
+### Resume Analysis
+- Upload resume PDFs
+- Extracts structured information automatically:
+  - Name
+  - Skills
+  - Experience
+  - Projects
+  - Education
+  - Certifications
+- Generates AI-powered feedback
 
-Frontend:
-- React
-- Vite
-- CSS
+---
 
-Backend:
-- Spring Boot
-- Java
-- REST APIs
+### JD-Aware ATS Scoring Engine
 
-Database:
-- PostgreSQL
+Unlike generic resume scoring systems, JobFlow calculates scores relative to a target Job Description.
 
-AI:
-- Groq API (Llama model)
+Scoring dimensions:
 
-## Architecture Flow
+| Dimension | Weight |
+|------------|---------|
+| Skills Match | 20 |
+| Resume Structure | 20 |
+| Experience Quality | 20 |
+| Project Quality | 20 |
+| Keyword Optimization | 20 |
 
-Login/Register
-↓
-Upload Resume + Job Description
+ATS Score Calculation:
+
+```text
+Resume
 ↓
 Resume Parsing
 ↓
-ATS Score Calculation
+Job Description Parsing
 ↓
-AI Analysis
+Skill Matching
 ↓
-Save Analysis to PostgreSQL
+Keyword Overlap Detection
 ↓
-Dashboard Insights
+Experience Evaluation
+↓
+Project Relevance Evaluation
+↓
+Final ATS Score
+```
 
-## Screenshots
-<img width="485" height="433" alt="image" src="https://github.com/user-attachments/assets/58042875-6dc4-4aa3-94e6-5491014c0f26" />
-<img width="990" height="810" alt="image" src="https://github.com/user-attachments/assets/e9400a61-8301-46ad-b9c9-c01e49c7f568" />
-<img width="1002" height="722" alt="image" src="https://github.com/user-attachments/assets/14fdfa50-e903-4b07-a628-a9404009efab" />
-<img width="742" height="792" alt="image" src="https://github.com/user-attachments/assets/77cb90a8-60c1-4fb3-9717-0fc6da2cccf8" />
-<img width="743" height="650" alt="image" src="https://github.com/user-attachments/assets/28f9a5e7-a21c-460c-a49e-aa9813766a6f" />
-<img width="743" height="822" alt="image" src="https://github.com/user-attachments/assets/c275fc41-1c7b-49fe-b596-3ff5ddbee090" />
-<img width="743" height="858" alt="image" src="https://github.com/user-attachments/assets/253199d0-f601-48b3-b901-272af20e34d1" />
+---
 
-## Setup Instructions
+### AI Resume Insights
 
-Backend:
-1. Clone repository
-2. Configure PostgreSQL
-3. Add API keys
-4. Run:
+Generates:
 
-mvnw spring-boot:run
+- ATS Score Explanation
+- Resume Strengths
+- Areas for Improvement
+- ATS Optimization Suggestions
+- Better Bullet Point Suggestions
+- Skills Gap Analysis
+- Personalized Interview Questions
 
-Frontend:
-1. Navigate to frontend folder
-2. Run:
+---
+
+### Personalized Interview Practice
+
+Questions are dynamically generated based on:
+
+- Resume content
+- Projects
+- Skills
+- Experience
+- Target Job Description
+
+Users can:
+
+- Answer interview questions
+- Receive AI evaluation
+- Get score out of 10
+- Receive personalized improvement feedback
+
+---
+
+### Resume Comparison Dashboard
+
+Compare multiple resume versions visually.
+
+Comparison dimensions:
+
+- Skills Match
+- Keywords
+- Experience
+- Projects
+- Resume Structure
+- Overall ATS Score
+
+Features:
+
+- Radar chart visualization
+- Score comparison table
+- Resume progression tracking
+
+---
+
+### Resume History
+
+Stores previous resume analyses:
+
+- Resume filename
+- ATS score
+- Analysis date
+- AI feedback
+- Interview questions
+
+Users can revisit previous analyses instantly.
+
+---
+
+##  Tech Stack
+
+### Frontend
+- React
+- JSX
+- CSS
+- Vite
+
+### Backend
+- Java
+- Spring Boot
+- REST APIs
+
+### Database
+- PostgreSQL
+
+### AI
+- Llama 3.3 70B Versatile
+- Groq API
+
+### Authentication
+- BCrypt
+- Session-based authentication
+
+### Tools
+- Git
+- Maven
+- Postman
+
+---
+
+##  Project Structure
+
+```text
+JobFlow
+│
+├── frontend
+│   ├── src
+│   │   ├── components
+│   │   ├── pages
+│   │   ├── assets
+│   │   └── App.jsx
+│
+├── backend
+│   ├── controller
+│   ├── service
+│   ├── repository
+│   ├── entity
+│   ├── dto
+│   ├── util
+│   └── config
+│
+└── README.md
+```
+
+---
+
+##  Installation
+
+### Clone Repository
+
+```bash
+git clone <repository-url>
+cd JobFlow
+```
+
+### Backend Setup
+
+```bash
+cd backend
+mvn spring-boot:run
+```
+
+Runs on:
+
+```text
+http://localhost:8080
+```
+
+---
+
+### Frontend Setup
+
+```bash
+cd frontend
 
 npm install
 npm run dev
+```
 
-## Future Improvements
-- Resume score trend graphs
-- Deploy on cloud
-- Role-specific AI recommendations
-- Export reports as PDF
+Runs on:
+
+```text
+http://localhost:5173
+```
+
+---
+
+##  Environment Variables
+
+Backend:
+
+```properties
+groq.api.key=YOUR_API_KEY
+```
+
+---
+
+##  Screens
+
+Current modules:
+
+- Dashboard:
+  <img width="1890" height="853" alt="image" src="https://github.com/user-attachments/assets/09c94cd6-50cd-459e-a58a-85c9c38918b8" />
+
+- Analyze Resume:
+  <img width="642" height="852" alt="image" src="https://github.com/user-attachments/assets/2e3e04d3-a891-4457-a5a0-3bb18c2eab7d" />
+
+- My Resumes:
+  <img width="1573" height="613" alt="image" src="https://github.com/user-attachments/assets/2c61282c-b2b1-4c24-9cdd-9fb071b5ef74" />
+
+- Resume Comparison:
+  <img width="1618" height="808" alt="image" src="https://github.com/user-attachments/assets/fdbe500e-58c8-479f-828a-0bdfbe9e1c72" />
+
+- Interview Practice:
+  <img width="1637" height="857" alt="image" src="https://github.com/user-attachments/assets/45bace49-f693-4410-b398-fad0e7b5c04e" />
+
+- Profile
+  <img width="1642" height="498" alt="image" src="https://github.com/user-attachments/assets/5c53f158-93f2-4d79-94be-19a9053929c7" />
+
+
+---
+
+##  Future Improvements
+
+- Semantic matching using embeddings
+- Voice-based mock interviews
+- Resume template generation
+- Resume-to-job recommendation system
+- AI career roadmap suggestions
+- Interview analytics dashboard
+
+---
+
+## 👨‍💻 Author
+
+Built by Anu

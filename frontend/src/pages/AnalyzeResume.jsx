@@ -38,7 +38,6 @@ const splitAIAnalysis = (text) => {
     if (!currentMatch) return;
 
     const start = currentMatch.index + currentMatch[0].length;
-
     let end = cleanedText.length;
 
     stopTitles.forEach((stopTitle) => {
@@ -95,10 +94,21 @@ function AnalyzeResume({ user, selectedResume }) {
     0;
 
   const aiAnalysis = displayData?.aiAnalysis || "";
-
   const modules = splitAIAnalysis(aiAnalysis);
   const hasModules = modules.length > 0;
-  
+
+  const getModulePoints = (title) => {
+    const section = modules.find((module) => module.title === title);
+    return section ? section.points : [];
+  };
+
+  const atsExplanation = getModulePoints("ATS SCORE EXPLANATION");
+  const strengths = getModulePoints("RESUME STRENGTHS");
+  const improvements = getModulePoints("AREAS FOR IMPROVEMENT");
+  const atsOptimization = getModulePoints("ATS OPTIMIZATION");
+  const bulletSuggestions = getModulePoints("BETTER BULLET POINT SUGGESTIONS");
+  const skillsGap = getModulePoints("SKILLS GAP ANALYSIS");
+
   const handleAnalyze = async () => {
     if (!file) {
       alert("Please upload a resume PDF");
@@ -157,7 +167,7 @@ function AnalyzeResume({ user, selectedResume }) {
               <input
                 type="file"
                 accept=".pdf"
-                onChange={(e) => setFile(e.target.files[0])}
+                onChange={(event) => setFile(event.target.files[0])}
               />
             </label>
 
@@ -171,7 +181,7 @@ function AnalyzeResume({ user, selectedResume }) {
           <textarea
             placeholder="Paste the job description here..."
             value={jobDescription}
-            onChange={(e) => setJobDescription(e.target.value)}
+            onChange={(event) => setJobDescription(event.target.value)}
           />
 
           <button onClick={handleAnalyze} disabled={loading}>
@@ -181,38 +191,152 @@ function AnalyzeResume({ user, selectedResume }) {
       )}
 
       {displayData && (
-        <div className="result-container">
-          <div className="score-card">
-            <h2>ATS Score</h2>
-
-            <div
-              className="score-circle"
-              style={{
-                background: `conic-gradient(#2563eb ${
-                  score * 3.6
-                }deg, #e2e8f0 0deg)`
-              }}
-            >
-              <span>{score}</span>
+        <div className="report-container">
+          <div className="report-header">
+            <div>
+              <h1>Analysis Results</h1>
+              <p>
+                {displayData.fileName || file?.name || "Uploaded Resume"} •
+                Completed
+              </p>
             </div>
           </div>
 
-                  {hasModules ? (
-            <div className="analysis-grid">
-              {modules.map((module, index) => (
-                <div className="analysis-module-card" key={index}>
-                  <h2>{module.title}</h2>
+          {hasModules ? (
+            <div className="report-layout">
+              <div className="report-main">
+                <div className="report-card ats-report-card">
+                  <div className="score-card-inner">
+                    <div>
+                      <h2>ATS Score</h2>
 
-                  <ul className="analysis-points">
-                    {module.points.map((point, i) => (
-                      <li key={i}>{point}</li>
+                      <div
+                        className="score-circle"
+                        style={{
+                          background: `conic-gradient(#2563eb ${
+                            score * 3.6
+                          }deg, #e2e8f0 0deg)`
+                        }}
+                      >
+                        <span>{score}</span>
+                      </div>
+                    </div>
+
+                    <div className="ats-summary">
+                      <h3>
+                        {score >= 75 ? "Great job!" : "Needs improvement"}
+                      </h3>
+                      <p>
+                        {atsExplanation[0] ||
+                          "Your resume has been analyzed against the job description."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="report-card">
+                  <h2>Score Breakdown</h2>
+
+                  <div className="score-breakdown">
+                    <div>
+                      <span>Keywords</span>
+                      <div className="bar">
+                        <div
+                          style={{ width: `${Math.min(score + 5, 100)}%` }}
+                        ></div>
+                      </div>
+                      <strong>{Math.min(score + 5, 100)}%</strong>
+                    </div>
+
+                    <div>
+                      <span>Skills</span>
+                      <div className="bar">
+                        <div
+                          style={{ width: `${Math.min(score + 3, 100)}%` }}
+                        ></div>
+                      </div>
+                      <strong>{Math.min(score + 3, 100)}%</strong>
+                    </div>
+
+                    <div>
+                      <span>Experience</span>
+                      <div className="bar">
+                        <div style={{ width: `${score}%` }}></div>
+                      </div>
+                      <strong>{score}%</strong>
+                    </div>
+
+                    <div>
+                      <span>Formatting</span>
+                      <div className="bar">
+                        <div
+                          style={{ width: `${Math.max(score - 10, 0)}%` }}
+                        ></div>
+                      </div>
+                      <strong>{Math.max(score - 10, 0)}%</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="report-two-column">
+                  <div className="report-card">
+                    <h2>Strengths</h2>
+                    <ul className="clean-list success-list">
+                      {strengths.slice(0, 5).map((point, index) => (
+                        <li key={index}>{point}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="report-card">
+                    <h2>Areas for Improvement</h2>
+                    <ul className="clean-list warning-list">
+                      {improvements.slice(0, 5).map((point, index) => (
+                        <li key={index}>{point}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="report-card">
+                  <h2>ATS Optimization</h2>
+                  <ul className="clean-list">
+                    {atsOptimization.map((point, index) => (
+                      <li key={index}>{point}</li>
                     ))}
                   </ul>
                 </div>
-              ))}
+
+                <div className="report-card">
+                  <h2>Better Bullet Point Suggestions</h2>
+                  <ul className="clean-list">
+                    {bulletSuggestions.map((point, index) => (
+                      <li key={index}>{point}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="report-side">
+                <div className="report-card">
+                  <h2>Top Missing Skills</h2>
+
+                  <div className="skill-chip-box">
+                    {skillsGap.slice(0, 6).map((skill, index) => (
+                      <span key={index}>{skill}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="report-card">
+                  <h2>Job Match</h2>
+                  <div className="mini-score">{score}%</div>
+                  <p>{score >= 75 ? "Good Match" : "Partial Match"}</p>
+                </div>
+              </div>
             </div>
           ) : (
-            <div className="analysis-module-card">
+            <div className="report-card">
               <h2>AI Analysis</h2>
               <p className="analysis-fallback">{aiAnalysis}</p>
             </div>

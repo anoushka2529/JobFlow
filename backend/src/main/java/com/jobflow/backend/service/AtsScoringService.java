@@ -4,18 +4,19 @@ import com.jobflow.backend.dto.AtsScore;
 import com.jobflow.backend.dto.ResumeData;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class AtsScoringService {
 
-    public AtsScore calculateScore(ResumeData resumeData) {
+    public AtsScore calculateScore(ResumeData resumeData, String jobDescription) {
 
-        int skillsScore = calculateSkillsScore(resumeData.getSkills());
+        int skillsScore = calculateSkillsScore(resumeData.getSkills(), jobDescription);
         int structureScore = calculateStructureScore(resumeData);
-        int experienceScore = calculateExperienceScore(resumeData.getExperience());
-        int projectsScore = calculateProjectsScore(resumeData.getProjects());
-        int keywordScore = calculateKeywordScore(resumeData);
+        int experienceScore = calculateExperienceScore(resumeData.getExperience(), jobDescription);
+        int projectsScore = calculateProjectsScore(resumeData.getProjects(), jobDescription);
+        int keywordScore = calculateKeywordScore(resumeData, jobDescription);
 
         int totalScore = skillsScore
                 + structureScore
@@ -32,25 +33,29 @@ public class AtsScoringService {
                 keywordScore);
     }
 
-    private int calculateSkillsScore(List<String> skills) {
+    private int calculateSkillsScore(List<String> skills, String jobDescription) {
 
         if (skills == null || skills.isEmpty()) {
             return 0;
         }
 
-        int skillCount = skills.size();
-
-        if (skillCount >= 10) {
-            return 20;
-        } else if (skillCount >= 7) {
-            return 16;
-        } else if (skillCount >= 4) {
-            return 12;
-        } else if (skillCount >= 2) {
-            return 8;
-        } else {
-            return 4;
+        if (!isPresent(jobDescription)) {
+            return Math.min(skills.size() * 2, 20);
         }
+
+        String lowerJobDescription = jobDescription.toLowerCase();
+
+        int matchedSkills = 0;
+
+        for (String skill : skills) {
+            if (skill != null && lowerJobDescription.contains(skill.toLowerCase())) {
+                matchedSkills++;
+            }
+        }
+
+        double ratio = (double) matchedSkills / skills.size();
+
+        return (int) Math.round(ratio * 20);
     }
 
     private int calculateStructureScore(ResumeData resumeData) {
@@ -73,7 +78,7 @@ public class AtsScoringService {
             score += 3;
         }
 
-        if (isPresent(resumeData.getSkills().toString())) {
+        if (resumeData.getSkills() != null && !resumeData.getSkills().isEmpty()) {
             score += 3;
         }
 
@@ -84,96 +89,158 @@ public class AtsScoringService {
         return Math.min(score, 20);
     }
 
-    private int calculateExperienceScore(String experience) {
+    private int calculateExperienceScore(String experience, String jobDescription) {
 
         if (!isPresent(experience)) {
             return 4;
         }
 
-        int score = 10;
+        int score = 8;
 
         if (containsNumber(experience)) {
-            score += 4;
+            score += 3;
         }
 
         if (containsAny(experience, List.of(
                 "developed", "built", "implemented", "designed",
                 "optimized", "improved", "created", "integrated",
                 "deployed", "maintained"))) {
-            score += 4;
+            score += 3;
         }
 
-        if (containsAny(experience, List.of(
-                "api", "database", "frontend", "backend",
-                "testing", "deployment", "performance", "scalable"))) {
-            score += 2;
+        if (isPresent(jobDescription)) {
+            int jdMatches = countKeywordOverlap(experience, jobDescription);
+            score += Math.min(jdMatches, 6);
         }
 
         return Math.min(score, 20);
     }
 
-    private int calculateProjectsScore(String projects) {
+    private int calculateProjectsScore(String projects, String jobDescription) {
 
         if (!isPresent(projects)) {
             return 0;
         }
 
-        int score = 8;
+        int score = 7;
 
         if (containsAny(projects, List.of(
                 "react", "spring boot", "java", "python", "sql",
                 "postgresql", "docker", "firebase", "flask", "api"))) {
-            score += 5;
+            score += 4;
         }
 
         if (containsAny(projects, List.of(
                 "deployed", "built", "developed", "implemented",
                 "integrated", "designed"))) {
-            score += 4;
+            score += 3;
         }
 
         if (containsNumber(projects)) {
-            score += 3;
+            score += 2;
+        }
+
+        if (isPresent(jobDescription)) {
+            int jdMatches = countKeywordOverlap(projects, jobDescription);
+            score += Math.min(jdMatches, 4);
         }
 
         return Math.min(score, 20);
     }
 
-    private int calculateKeywordScore(ResumeData resumeData) {
+    private int calculateKeywordScore(ResumeData resumeData, String jobDescription) {
 
-        String combinedText = (resumeData.getSkills() + " " +
-                resumeData.getProfessionalSummary() + " " +
-                resumeData.getExperience() + " " +
-                resumeData.getProjects()).toLowerCase();
+        String resumeText = buildResumeText(resumeData);
 
-        List<String> importantKeywords = List.of(
-                "java",
-                "spring boot",
-                "rest api",
-                "sql",
-                "postgresql",
-                "docker",
-                "react",
-                "git",
-                "backend",
-                "frontend",
-                "database",
-                "testing",
-                "deployment",
-                "agile",
-                "cloud");
+        if (!isPresent(jobDescription)) {
+            return 0;
+        }
+
+        List<String> jdKeywords = extractKeywords(jobDescription);
+
+        if (jdKeywords.isEmpty()) {
+            return 0;
+        }
 
         int matches = 0;
 
-        for (String keyword : importantKeywords) {
-            if (combinedText.contains(keyword)) {
+        for (String keyword : jdKeywords) {
+            if (resumeText.contains(keyword)) {
                 matches++;
             }
         }
 
-        double ratio = (double) matches / importantKeywords.size();
+        double ratio = (double) matches / jdKeywords.size();
 
         return (int) Math.round(ratio * 20);
+    }
+
+    private int countKeywordOverlap(String sectionText, String jobDescription) {
+
+        if (!isPresent(sectionText) || !isPresent(jobDescription)) {
+            return 0;
+        }
+
+        String lowerSection = sectionText.toLowerCase();
+        List<String> jdKeywords = extractKeywords(jobDescription);
+
+        int matches = 0;
+
+        for (String keyword : jdKeywords) {
+            if (lowerSection.contains(keyword)) {
+                matches++;
+            }
+        }
+
+        return matches;
+    }
+
+    private List<String> extractKeywords(String text) {
+
+        List<String> stopWords = List.of(
+                "the", "and", "or", "with", "for", "you", "your",
+                "are", "our", "this", "that", "will", "from", "have",
+                "has", "was", "were", "been", "their", "they", "them",
+                "role", "candidate", "responsibilities", "requirements",
+                "experience", "skills", "knowledge", "ability", "work",
+                "team", "good", "strong", "excellent", "plus", "using",
+                "based", "such", "etc", "in", "on", "to", "of", "a",
+                "an", "as", "is", "be", "by", "at");
+
+        String cleanedText = text.toLowerCase().replaceAll("[^a-zA-Z0-9+#. ]", " ");
+
+        String[] words = cleanedText.split("\\s+");
+
+        List<String> keywords = new ArrayList<>();
+
+        for (String word : words) {
+            if (word.length() < 3) {
+                continue;
+            }
+
+            if (stopWords.contains(word)) {
+                continue;
+            }
+
+            if (!keywords.contains(word)) {
+                keywords.add(word);
+            }
+        }
+
+        return keywords;
+    }
+
+    private String buildResumeText(ResumeData resumeData) {
+
+        return (safeText(resumeData.getSkills()) + " " +
+                safeText(resumeData.getProfessionalSummary()) + " " +
+                safeText(resumeData.getExperience()) + " " +
+                safeText(resumeData.getProjects()) + " " +
+                safeText(resumeData.getEducation())).toLowerCase();
+    }
+
+    private String safeText(Object value) {
+        return value == null ? "" : value.toString();
     }
 
     private boolean isPresent(String value) {

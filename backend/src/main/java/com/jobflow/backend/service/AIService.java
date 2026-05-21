@@ -151,6 +151,10 @@ public class AIService {
                 return callGroq(prompt);
         }
 
+        public String generateText(String prompt) {
+                return callGroq(prompt);
+        }
+
         @SuppressWarnings("unchecked")
         private String callGroq(String prompt) {
 

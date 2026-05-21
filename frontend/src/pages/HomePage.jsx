@@ -3,9 +3,7 @@ import Dashboard from "./Dashboard";
 import AnalyzeResume from "./AnalyzeResume";
 import MyResumes from "./MyResumes";
 import InterviewPractice from "./InterviewPractice";
-import Reports from "./Reports";
 import CompareResume from "./CompareResume";
-import SavedQuestions from "./SavedQuestions";
 import Profile from "./Profile";
 
 function HomePage({ user, onLogout }) {
@@ -32,13 +30,9 @@ case "myResumes":
     />
   );
       case "interview":
-        return <InterviewPractice user={user} />;
-      case "reports":
-        return <Reports user={user} />;
+  return <InterviewPractice user={user} />;
       case "compare":
         return <CompareResume user={user} />;
-      case "saved":
-        return <SavedQuestions user={user} />;
       case "profile":
         return <Profile user={user} />;
       default:
@@ -67,12 +61,7 @@ case "myResumes":
 <button onClick={() => setActivePage("interview")}>
   Interview Practice
 </button>
-
-<button onClick={() => setActivePage("reports")}>Reports</button>
-
 <button onClick={() => setActivePage("compare")}>Compare Resume</button>
-
-<button onClick={() => setActivePage("saved")}>Saved Questions</button>
 
 <button onClick={() => setActivePage("profile")}>Profile</button>
 

@@ -61,23 +61,22 @@ public class ResumeService {
             throw new RuntimeException("User ID is required");
         }
 
-        String uniqueFileName = System.currentTimeMillis() +
-                "_" +
-                file.getOriginalFilename();
+        String uniqueFileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
 
         Path path = Paths.get(UPLOAD_DIR + uniqueFileName);
 
         Files.createDirectories(path.getParent());
-
         Files.write(path, file.getBytes());
 
         String extractedText = PdfParserUtil.extractText(path.toString());
 
         ResumeData resumeData = ResumeParserUtil.parseResume(extractedText);
 
-        AtsScore atsScore = atsScoringService.calculateScore(resumeData);
+        AtsScore atsScore = atsScoringService.calculateScore(resumeData, jobDescription);
 
         String aiAnalysis = aiService.generateAIAnalysis(resumeData, atsScore, jobDescription);
+
+        String questions = extractInterviewQuestions(aiAnalysis);
 
         ResumeAnalysis savedAnalysis = new ResumeAnalysis(
                 userId,
@@ -86,12 +85,39 @@ public class ResumeService {
                 resumeData.getEmail(),
                 jobDescription,
                 atsScore.getTotalScore(),
-                aiAnalysis);
+                atsScore.getSkillsScore(),
+                atsScore.getStructureScore(),
+                atsScore.getExperienceScore(),
+                atsScore.getProjectsScore(),
+                atsScore.getKeywordScore(),
+                aiAnalysis,
+                questions);
 
         resumeAnalysisRepository.save(savedAnalysis);
+
         return new AIProcessResponse(
                 resumeData,
                 atsScore,
                 aiAnalysis);
+    }
+
+    private String extractInterviewQuestions(String aiAnalysis) {
+        if (aiAnalysis == null || aiAnalysis.isBlank()) {
+            return "";
+        }
+
+        String heading = "PERSONALIZED INTERVIEW QUESTIONS";
+
+        int start = aiAnalysis.indexOf(heading);
+
+        if (start == -1) {
+            return "";
+        }
+
+        return aiAnalysis
+                .substring(start + heading.length())
+                .replace("=", "")
+                .replace("*", "")
+                .trim();
     }
 }

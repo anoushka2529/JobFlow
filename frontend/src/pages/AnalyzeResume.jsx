@@ -11,49 +11,94 @@ const moduleTitles = [
 
 const stopTitles = [...moduleTitles, "PERSONALIZED INTERVIEW QUESTIONS"];
 
+const escapeRegex = (text) => {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
+
 const splitAIAnalysis = (text) => {
   if (!text) return [];
 
-  return moduleTitles
-    .map((title) => {
-      const start = text.indexOf(title);
-      if (start === -1) return null;
+  const cleanedText = text
+    .replace(/=+/g, "")
+    .replace(/\*/g, "")
+    .replace(/#/g, "")
+    .replace(/\r/g, "")
+    .trim();
 
-      const possibleEnds = stopTitles
-        .filter((t) => t !== title)
-        .map((t) => text.indexOf(t, start + title.length))
-        .filter((i) => i !== -1);
+  const sections = [];
 
-      const end = possibleEnds.length > 0 ? Math.min(...possibleEnds) : text.length;
+  moduleTitles.forEach((title) => {
+    const headingRegex = new RegExp(
+      `^\\s*${escapeRegex(title)}\\s*:?\\s*$`,
+      "im"
+    );
 
-      let content = text.substring(start + title.length, end);
+    const currentMatch = cleanedText.match(headingRegex);
 
-      content = content
-        .replace(/=+/g, "")
-        .replace(/\*/g, "")
-        .replace(/^[:\-\s]+/, "")
-        .replace(/\n\s*\n/g, "\n")
-        .trim();
+    if (!currentMatch) return;
 
-      const points = content
-        .split("\n")
-        .map((p) => p.trim())
-        .filter((p) => p !== "");
+    const start = currentMatch.index + currentMatch[0].length;
 
-      return {
-        title,
-        points
-      };
-    })
-    .filter(Boolean);
+    let end = cleanedText.length;
+
+    stopTitles.forEach((stopTitle) => {
+      if (stopTitle === title) return;
+
+      const stopRegex = new RegExp(
+        `^\\s*${escapeRegex(stopTitle)}\\s*:?\\s*$`,
+        "im"
+      );
+
+      const remainingText = cleanedText.substring(start);
+      const stopMatch = remainingText.match(stopRegex);
+
+      if (stopMatch) {
+        const stopIndex = start + stopMatch.index;
+
+        if (stopIndex > start && stopIndex < end) {
+          end = stopIndex;
+        }
+      }
+    });
+
+    const content = cleanedText
+      .substring(start, end)
+      .replace(/^[:\-\s]+/, "")
+      .replace(/^\d+\.\s*/gm, "")
+      .trim();
+
+    const points = content
+      .split(/\n+/)
+      .map((point) => point.trim())
+      .filter((point) => point.length > 0);
+
+    sections.push({
+      title,
+      points
+    });
+  });
+
+  return sections;
 };
 
-function AnalyzeResume({ user }) {
+function AnalyzeResume({ user, selectedResume }) {
   const [file, setFile] = useState(null);
   const [jobDescription, setJobDescription] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const displayData = selectedResume || result;
+
+  const score =
+    displayData?.totalScore ??
+    displayData?.atsScore?.totalScore ??
+    0;
+
+  const aiAnalysis = displayData?.aiAnalysis || "";
+
+  const modules = splitAIAnalysis(aiAnalysis);
+  const hasModules = modules.length > 0;
+  
   const handleAnalyze = async () => {
     if (!file) {
       alert("Please upload a resume PDF");
@@ -92,46 +137,50 @@ function AnalyzeResume({ user }) {
     }
   };
 
-  const modules = splitAIAnalysis(result?.aiAnalysis);
-
   return (
     <div>
       <h1>Analyze Resume</h1>
+
       <p className="page-subtitle">
-        Upload your resume and paste a job description to get ATS feedback.
+        {selectedResume
+          ? "Viewing saved resume analysis."
+          : "Upload your resume and paste a job description to get ATS feedback."}
       </p>
 
-      <div className="input-card">
-        <label>Upload Resume PDF</label>
+      {!selectedResume && (
+        <div className="input-card">
+          <label>Upload Resume PDF</label>
 
-        <div className="custom-file-upload">
-          <label className="upload-btn">
-            Choose File
-            <input
-              type="file"
-              accept=".pdf"
-              onChange={(e) => setFile(e.target.files[0])}
-            />
-          </label>
+          <div className="custom-file-upload">
+            <label className="upload-btn">
+              Choose File
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={(e) => setFile(e.target.files[0])}
+              />
+            </label>
 
-          <span className="file-name">
-            {file ? file.name : "No file selected"}
-          </span>
+            <span className="file-name">
+              {file ? file.name : "No file selected"}
+            </span>
+          </div>
+
+          <label>Job Description</label>
+
+          <textarea
+            placeholder="Paste the job description here..."
+            value={jobDescription}
+            onChange={(e) => setJobDescription(e.target.value)}
+          />
+
+          <button onClick={handleAnalyze} disabled={loading}>
+            {loading ? "Analyzing..." : "Analyze Resume"}
+          </button>
         </div>
+      )}
 
-        <label>Job Description</label>
-        <textarea
-          placeholder="Paste the job description here..."
-          value={jobDescription}
-          onChange={(e) => setJobDescription(e.target.value)}
-        />
-
-        <button onClick={handleAnalyze} disabled={loading}>
-          {loading ? "Analyzing..." : "Analyze Resume"}
-        </button>
-      </div>
-
-      {result && (
+      {displayData && (
         <div className="result-container">
           <div className="score-card">
             <h2>ATS Score</h2>
@@ -140,27 +189,34 @@ function AnalyzeResume({ user }) {
               className="score-circle"
               style={{
                 background: `conic-gradient(#2563eb ${
-                  result.atsScore.totalScore * 3.6
+                  score * 3.6
                 }deg, #e2e8f0 0deg)`
               }}
             >
-              <span>{result.atsScore.totalScore}</span>
+              <span>{score}</span>
             </div>
           </div>
 
-          <div className="analysis-grid">
-            {modules.map((module, index) => (
-              <div className="analysis-module-card" key={index}>
-                <h2>{module.title}</h2>
+                  {hasModules ? (
+            <div className="analysis-grid">
+              {modules.map((module, index) => (
+                <div className="analysis-module-card" key={index}>
+                  <h2>{module.title}</h2>
 
-                <ul className="analysis-points">
-                  {module.points.map((point, i) => (
-                    <li key={i}>{point}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+                  <ul className="analysis-points">
+                    {module.points.map((point, i) => (
+                      <li key={i}>{point}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="analysis-module-card">
+              <h2>AI Analysis</h2>
+              <p className="analysis-fallback">{aiAnalysis}</p>
+            </div>
+          )}
         </div>
       )}
     </div>

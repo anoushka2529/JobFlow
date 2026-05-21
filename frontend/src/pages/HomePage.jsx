@@ -10,15 +10,27 @@ import Profile from "./Profile";
 
 function HomePage({ user, onLogout }) {
   const [activePage, setActivePage] = useState("dashboard");
-
+  const [selectedResume, setSelectedResume] = useState(null);
   const renderPage = () => {
     switch (activePage) {
       case "dashboard":
         return <Dashboard user={user} />;
       case "analyze":
-        return <AnalyzeResume user={user} />;
-      case "myResumes":
-        return <MyResumes user={user} />;
+  return (
+    <AnalyzeResume
+      user={user}
+      selectedResume={selectedResume}
+    />
+  );
+
+case "myResumes":
+  return (
+    <MyResumes
+      user={user}
+      setSelectedResume={setSelectedResume}
+      setActivePage={setActivePage}
+    />
+  );
       case "interview":
         return <InterviewPractice user={user} />;
       case "reports":
@@ -40,16 +52,33 @@ function HomePage({ user, onLogout }) {
         <h2 className="logo">JobFlow</h2>
 
         <button onClick={() => setActivePage("dashboard")}>Dashboard</button>
-        <button onClick={() => setActivePage("analyze")}>Analyze Resume</button>
-        <button onClick={() => setActivePage("myResumes")}>My Resumes</button>
-        <button onClick={() => setActivePage("interview")}>Interview Practice</button>
-        <button onClick={() => setActivePage("reports")}>Reports</button>
-        <button onClick={() => setActivePage("compare")}>Compare Resume</button>
-        <button onClick={() => setActivePage("saved")}>Saved Questions</button>
-        <button onClick={() => setActivePage("profile")}>Profile</button>
-        <button className="logout-btn" onClick={onLogout}>
-          Logout
-        </button>
+
+<button
+  onClick={() => {
+    setSelectedResume(null);
+    setActivePage("analyze");
+  }}
+>
+  Analyze Resume
+</button>
+
+<button onClick={() => setActivePage("myResumes")}>My Resumes</button>
+
+<button onClick={() => setActivePage("interview")}>
+  Interview Practice
+</button>
+
+<button onClick={() => setActivePage("reports")}>Reports</button>
+
+<button onClick={() => setActivePage("compare")}>Compare Resume</button>
+
+<button onClick={() => setActivePage("saved")}>Saved Questions</button>
+
+<button onClick={() => setActivePage("profile")}>Profile</button>
+
+<button className="logout-btn" onClick={onLogout}>
+  Logout
+</button>
       </aside>
 
       <main className="main-content">{renderPage()}</main>

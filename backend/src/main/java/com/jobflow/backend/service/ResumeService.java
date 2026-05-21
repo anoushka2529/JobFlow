@@ -61,7 +61,11 @@ public class ResumeService {
             throw new RuntimeException("User ID is required");
         }
 
-        Path path = Paths.get(UPLOAD_DIR + file.getOriginalFilename());
+        String uniqueFileName = System.currentTimeMillis() +
+                "_" +
+                file.getOriginalFilename();
+
+        Path path = Paths.get(UPLOAD_DIR + uniqueFileName);
 
         Files.createDirectories(path.getParent());
 

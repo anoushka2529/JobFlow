@@ -57,10 +57,7 @@ function Dashboard({ user }) {
           <p>{latestScore}</p>
         </div>
 
-        <div className="dashboard-card">
-          <h3>Saved Questions</h3>
-          <p>0</p>
-        </div>
+        
       </div>
 
       <div className="module-card">

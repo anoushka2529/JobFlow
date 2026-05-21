@@ -269,6 +269,3 @@ Current modules:
 
 ---
 
-## 👨‍💻 Author
-
-Built by Anu
